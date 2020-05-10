@@ -54,24 +54,30 @@ def _valid_admin(chat_id):
     return chat_id in ADMIN_CHAT_ID
 
 
-def check_permission(update, chat_id, callback):
-    if not callback(chat_id):
-        logging.getLogger(check_permission.__name__).warning("Checking permission for {} failed".format(chat_id))
+def check_permission(update, context, callback):
+    if not callback(update.message.chat_id):
+        logging.getLogger(check_permission.__name__).warning(
+            "Checking permission for [user={}, chat_id={}] failed".format(update.effective_user.username,
+                                                                          update.message.chat_id))
 
         update.message.reply_text(strings.get("error", "permission_denied"))
-        return
+        context.bot.send_sticker(chat_id=update.message.chat_id, sticker=strings.get("sticker", "permission_denied"))
+        return 0
+    return 1
 
 
 @run_async
-def handle_start(update, _context):
-    check_permission(update, update.message.chat_id, _valid_user)
+def handle_start(update, context):
+    if not check_permission(update, context, _valid_user):
+        return
 
     update.message.reply_text(strings.get("text", "greeting"), reply_markup=ReplyKeyboardRemove())
 
 
 @run_async
 def handle_default_message(update, context):
-    check_permission(update, update.message.chat_id, _valid_user)
+    if not check_permission(update, context, _valid_user):
+        return
 
     if update.message.text[0] == "/":
         update.message.reply_text(strings.get("error", "not_found"))
@@ -82,7 +88,8 @@ def handle_default_message(update, context):
 
 @run_async
 def handle_take_photo(update, context):
-    check_permission(update, update.message.chat_id, _valid_admin)
+    if not check_permission(update, context, _valid_admin):
+        return
 
     update.message.reply_text(strings.get("text", "take_photo"))
 
@@ -110,8 +117,9 @@ def handle_error(update, context):
 
 
 @run_async
-def handle_view_log(update, _context):
-    check_permission(update, update.message.chat_id, _valid_admin)
+def handle_view_log(update, context):
+    if not check_permission(update, context, _valid_admin):
+        return
 
     # TODO only return logs on WARNING level
     result = ""
