@@ -1,0 +1,16 @@
+{
+  "text": {
+    "default": "May the hamster be with you \uD83E\uDDE1",
+    "greeting": "Hello Hamster Master 🐹 What do you want?",
+    "take_photo": "Taking photo... please wait a minute 😉"
+  },
+  "sticker": {
+    "not_found": "CAACAgQAAxkBAAI_yl6NCES5Tv4uf6N-uMcN1pw9iJZ3AAK3AwAC46ddBa9n4A-1LQvRGAQ",
+    "permission_denied": "CAACAgQAAxkBAAJFZF6TvWvBJs1GvKGKrB3QUBa8UmKZAALPAwAC46ddBem33JSLLUQeGAQ"
+  },
+  "error": {
+    "general": "An unexpected error has occurred:\n{}",
+    "not_found": "Command not found.",
+    "permission_denied": "Permission denied."
+  }
+}

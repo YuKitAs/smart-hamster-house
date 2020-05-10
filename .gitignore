@@ -1,0 +1,13 @@
+# config
+configuration.ini
+
+# python
+__pycache__
+*.pyc
+venv/
+
+# logs
+logs/
+
+# PyCharm
+.idea/
