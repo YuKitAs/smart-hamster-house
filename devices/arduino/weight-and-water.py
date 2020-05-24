@@ -12,7 +12,7 @@ ser = serial.Serial('/dev/ttyACM0', 9600)
 client = InfluxDBClient('localhost', 8086)
 
 num_read_weights = 5
-tare_weight = 180  # a rough value as threshold
+tare_weight = 165
 interval = 86400
 
 
@@ -69,9 +69,9 @@ while True:
             write_water_alarm()
 
         weight = json_value['weight']
-        if weight > tare_weight and (time.time() - weight_update_time) >= interval:
+        if weight > (tare_weight + 20) and (time.time() - weight_update_time) >= interval:
             if len(read_weights) < num_read_weights:
-                read_weights.append(weight)
+                read_weights.append(weight - tare_weight)
                 continue
             else:
                 if valid_weights(read_weights):
