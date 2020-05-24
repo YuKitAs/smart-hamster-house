@@ -6,7 +6,8 @@ import time
 import serial
 from influxdb import InfluxDBClient
 
-logging.basicConfig(filename='weight-and-water.log', format='%(asctime)s - %(levelname)s - %(message)s', level='DEBUG')
+logging.basicConfig(filename='logs/weight-and-water.log', format='%(asctime)s - %(levelname)s - %(message)s',
+                    level='DEBUG')
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 client = InfluxDBClient('localhost', 8086)
