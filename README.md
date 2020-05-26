@@ -5,12 +5,12 @@
 
 ## In Progress
 - Automatic weighing scale & monitoring (load sensor, Grafana)
-- Automatic night light
-- Automatic USB fan
 
 ## Done
 - Webcam (RPi camera module)
 - Water alarm (non-contact liquid level sensor, Grafana)
+- Automatic night light
+- Automatic USB fan
 
 ## Backlog
 - Activity monitoring (pressure sensor in every cave)
