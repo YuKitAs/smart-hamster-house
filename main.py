@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import datetime
 import json
 import logging
 import os
@@ -8,6 +9,8 @@ import subprocess
 import time
 from configparser import ConfigParser
 
+import pytz
+from influxdb import InfluxDBClient
 from telegram import ReplyKeyboardRemove
 from telegram.ext import run_async
 
@@ -16,7 +19,9 @@ from telegram_bot import TelegramBot
 
 # python-telegram-bot transition guild to 12.0:
 # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Transition-guide-to-Version-12.0#commandhandler
+
 strings = Strings()
+client = InfluxDBClient('localhost', 8086)
 
 # logging
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -106,6 +111,27 @@ def handle_take_photo(update, context):
     context.bot.send_photo(chat_id=update.message.chat_id, photo=open(photo_path, "rb"), timeout=SEND_TIMEOUT)
 
 
+@run_async
+def handle_get_weight(update, context):
+    if not check_permission(update, context, _valid_user):
+        return
+
+    client.switch_database('weight')
+    query_result = client.query("SELECT * FROM weight WHERE time > now() - 3d")
+    logging.info("Retrieved data from 'weight': {}".format(query_result))
+
+    points = query_result.get_points(tags={'location': 'home'})
+    records = ""
+    for point in points:
+        # convert rfc3339 timestamp string to localtime
+        localtime = datetime.datetime.fromtimestamp(
+            time.mktime(time.strptime(point['time'][:19], "%Y-%m-%dT%H:%M:%S"))).replace(tzinfo=pytz.utc).astimezone(
+            pytz.timezone("Europe/Berlin")).strftime("%Y-%m-%d %H:%M")
+        records += "{}: *{}g*\n".format(localtime, point['weight'])
+
+    update.message.reply_text(records, parse_mode='Markdown')
+
+
 # handle unknown errors
 def handle_error(update, context):
     error_message = strings.get("error", "general").format(context.error)
@@ -133,6 +159,7 @@ def main():
     TelegramBot.with_token(BOT_TOKEN) \
         .add_command_handler("start", handle_start) \
         .add_command_handler("photo", handle_take_photo) \
+        .add_command_handler("weight", handle_get_weight) \
         .add_command_handler("viewlog", handle_view_log) \
         .add_default_message_handler(handle_default_message) \
         .add_error_handler(handle_error) \
