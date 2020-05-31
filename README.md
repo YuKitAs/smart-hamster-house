@@ -4,13 +4,13 @@
 - Automatic feeder v3
 
 ## In Progress
-- Automatic weighing scale & monitoring (load sensor, Grafana)
 
 ## Done
 - Webcam (RPi camera module)
-- Water alarm (non-contact liquid level sensor, Grafana)
+- Water alarm (non-contact liquid level sensor, Grafana alert)
 - Automatic night light
 - Automatic USB fan
+- Automatic weighing scale & monitoring (load sensor, Grafana alert)
 
 ## Backlog
 - Activity monitoring (pressure sensor in every cave)
