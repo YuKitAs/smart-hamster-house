@@ -127,7 +127,7 @@ def handle_get_weight(update, context):
         localtime = datetime.datetime.fromtimestamp(
             time.mktime(time.strptime(point['time'][:19], "%Y-%m-%dT%H:%M:%S"))).replace(tzinfo=pytz.utc).astimezone(
             pytz.timezone("Europe/Berlin")).strftime("%Y-%m-%d %H:%M")
-        records += "{}: *{}g*\n".format(localtime, point['weight'])
+        records += "{}: *{}g*\n".format(localtime, point['value'])
 
     update.message.reply_text(records, parse_mode='Markdown')
 
