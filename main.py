@@ -117,8 +117,13 @@ def handle_get_weight(update, context):
         return
 
     client.switch_database('weight')
-    query_result = client.query("SELECT * FROM weight WHERE time > now() - 3d")
-    logging.info("Retrieved data from 'weight': {}".format(query_result))
+
+    record_num = 1
+    if len(context.args) > 0:
+        record_num = context.args[0]
+    query_result = client.query("SELECT * FROM weight WHERE time > now() - {}d".format(record_num))
+
+    logging.info("Retrieved weight record(s) in the last {} day(s): {}".format(record_num, query_result))
 
     points = query_result.get_points(tags={'location': 'home'})
     records = ""
@@ -128,7 +133,7 @@ def handle_get_weight(update, context):
             time.mktime(time.strptime(point['time'][:19], "%Y-%m-%dT%H:%M:%S"))).replace(tzinfo=pytz.utc).astimezone(
             pytz.timezone("Europe/Berlin")).strftime("%Y-%m-%d %H:%M")
         weight = float(point['value'])
-        records += "{}: *{:.1f}g*\n".format(localtime, weight)
+        records += "\\[{}] *{:.1f}g*\n".format(localtime, weight)
 
     update.message.reply_text(records, parse_mode='Markdown')
 
@@ -160,7 +165,7 @@ def main():
     TelegramBot.with_token(BOT_TOKEN) \
         .add_command_handler("start", handle_start) \
         .add_command_handler("photo", handle_take_photo) \
-        .add_command_handler("weight", handle_get_weight) \
+        .add_command_handler("weight", handle_get_weight, pass_args=True) \
         .add_command_handler("viewlog", handle_view_log) \
         .add_default_message_handler(handle_default_message) \
         .add_error_handler(handle_error) \

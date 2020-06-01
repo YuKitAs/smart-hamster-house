@@ -15,8 +15,8 @@ class TelegramBot:
         self.updater.start_polling()
         self.updater.idle()
 
-    def add_command_handler(self, command, callback):
-        self.dispatcher.add_handler(CommandHandler(command, callback))
+    def add_command_handler(self, command, callback, pass_args=False):
+        self.dispatcher.add_handler(CommandHandler(command, callback, pass_args=pass_args))
         return self
 
     def add_error_handler(self, callback):
