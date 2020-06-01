@@ -2,15 +2,19 @@
 
 ## TODO
 - Automatic feeder v3
+- Camera stand
 
 ## In Progress
 
 ## Done
+- Telegram Bot
 - Webcam (RPi camera module)
-- Water alarm (non-contact liquid level sensor, Grafana alert)
+- Water alarm (non-contact liquid level sensor)
+  - Grafana alert
 - Automatic night light
 - Automatic USB fan
-- Automatic weighing scale & monitoring (load sensor, Grafana alert)
+- Automatic weighing scale & monitoring (load sensor)
+  - Grafana alert
 
 ## Backlog
 - Activity monitoring (pressure sensor in every cave)
