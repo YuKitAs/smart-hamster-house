@@ -1,7 +1,7 @@
 {
   "text": {
     "default": "May the hamster be with you \uD83E\uDDE1",
-    "greeting": "Hello Hamster Master 🐹 What do you want?",
+    "greeting": "Hello Hamster Master 🐹 What do you want?\n/photo - take a photo \uD83D\uDCF8\n/weight - [X] show weights in the last X days (X: optional int, default: 1) \uD83C\uDFCB️\n",
     "take_photo": "Taking photo... please wait a minute 😉"
   },
   "sticker": {
