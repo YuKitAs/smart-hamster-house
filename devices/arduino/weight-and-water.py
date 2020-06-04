@@ -78,6 +78,7 @@ while True:
                 if valid_weights(read_weights):
                     logging.debug('Writing weight: {}'.format(statistics.mean(read_weights)))
                     write_weight(statistics.mean(read_weights))
+                    read_weights = []
 
                     current_time = time.time()
                     logging.debug('Updating time: {}'.format(time.ctime(current_time)))
