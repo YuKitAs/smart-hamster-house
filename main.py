@@ -125,7 +125,7 @@ def handle_get_weight(update, context):
 
     logging.info("Retrieved weight record(s) in the last {} day(s): {}".format(record_num, query_result))
 
-    points = query_result.get_points(tags={'location': 'home'})
+    points = query_result.get_points(tags={'type': 'hamster_weight'})
     records = ""
     for point in points:
         # convert rfc3339 timestamp string to localtime
@@ -135,7 +135,10 @@ def handle_get_weight(update, context):
         weight = float(point['value'])
         records += "\\[{}] *{:.1f}g*\n".format(localtime, weight)
 
-    update.message.reply_text(records, parse_mode='Markdown')
+    if records:
+        update.message.reply_text(records, parse_mode='Markdown')
+    else:
+        update.message.reply_text("No weight recorded in the last day")
 
 
 # handle unknown errors
