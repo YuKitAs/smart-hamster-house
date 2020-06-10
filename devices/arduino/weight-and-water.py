@@ -43,6 +43,10 @@ def write_water_alarm():
     client.write_points(json_body)
 
 
+def get_epoch_time_from_string(time_string):  # e.g. '2020-06-01T12:59:38.334163852Z
+    return time.mktime(time.strptime(time_string[:19], "%Y-%m-%dT%H:%M:%S"))
+
+
 def valid_weights(values):
     return statistics.stdev(values) < 1
 
@@ -54,7 +58,6 @@ def write_weight(tag, value):
         json_body = [{
             "measurement": measurement_weight,
             "tags": {
-                "location": "home",
                 "type": tag
             },
             "fields": {
@@ -72,9 +75,9 @@ def read_last_weight(tag):
     return next(query_result.get_points())
 
 
-def delete_last_tare_weight(tare_weight_time):
+def delete_last_tare_weight():
     client.switch_database(db_weight)
-    client.query("DELETE FROM {} WHERE time = {}".format(measurement_weight, tare_weight_time))
+    client.query("DELETE FROM {} WHERE type = '{}' AND time < now() - 1h".format(measurement_weight, tag_tare_weight))
 
 
 read_hamster_weights = []
@@ -98,16 +101,14 @@ while True:
         if weight > tare_weight_threshold and current_time - last_read_time >= read_interval:
             last_tare_weight = read_last_weight(tag_tare_weight)
 
-            last_tare_weight_update_time = time.mktime(
-                time.strptime(last_tare_weight['time'][:19], "%Y-%m-%dT%H:%M:%S")) \
+            last_tare_weight_update_time = get_epoch_time_from_string(last_tare_weight['time']) \
                 if last_tare_weight is not None else time_default
 
             last_tare_weight_value = last_tare_weight['last_value'] \
                 if last_tare_weight is not None else tare_weight_default
 
             last_hamster_weight = read_last_weight(tag_hamster_weight)
-            last_hamster_weight_update_time = time.mktime(
-                time.strptime(last_hamster_weight['time'][:19], "%Y-%m-%dT%H:%M:%S")) \
+            last_hamster_weight_update_time = get_epoch_time_from_string(last_hamster_weight['time']) \
                 if last_hamster_weight is not None else time_default
 
             if 1 < abs(weight - last_tare_weight_value) <= 20:  # check tare weight
@@ -120,7 +121,7 @@ while True:
                         write_weight(tag_tare_weight, mean_value)
                         logging.info('[Weight] Wrote tare weight: {}'.format(mean_value))
 
-                        delete_last_tare_weight(last_tare_weight['time'])
+                        delete_last_tare_weight()
                         logging.info('[Weight] Deleted last tare weight')
 
                         read_tare_weights = []
