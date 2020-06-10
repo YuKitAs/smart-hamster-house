@@ -125,7 +125,7 @@ def handle_get_weight(update, context):
 
     logging.info("Retrieved weight record(s) in the last {} day(s): {}".format(record_num, query_result))
 
-    points = query_result.get_points(tags={'type': 'hamster_weight'})
+    points = query_result.get_points(tags={'type': 'hamster'})
     records = ""
     for point in points:
         # convert rfc3339 timestamp string to localtime

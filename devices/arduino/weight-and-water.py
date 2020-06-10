@@ -16,8 +16,8 @@ client = InfluxDBClient('localhost', 8086)
 db_water = "water"
 db_weight = "weight"
 measurement_weight = "weight"
-tag_hamster_weight = "hamster_weight"
-tag_tare_weight = "tare_weight"
+tag_hamster_weight = "hamster"
+tag_tare_weight = "tare"
 
 num_read_weights = 5
 tare_weight_threshold = 150
@@ -72,6 +72,11 @@ def read_last_weight(tag):
     return next(query_result.get_points())
 
 
+def delete_last_tare_weight(tare_weight_time):
+    client.switch_database(db_weight)
+    client.query("DELETE FROM {} WHERE time = {}".format(measurement_weight, tare_weight_time))
+
+
 read_hamster_weights = []
 read_tare_weights = []
 last_read_time = 0
@@ -112,8 +117,11 @@ while True:
                 else:
                     if valid_weights(read_tare_weights):
                         mean_value = statistics.mean(read_tare_weights)
-                        logging.debug('[Weight] Writing tare weight: {}'.format(mean_value))
                         write_weight(tag_tare_weight, mean_value)
+                        logging.info('[Weight] Wrote tare weight: {}'.format(mean_value))
+
+                        delete_last_tare_weight(last_tare_weight['time'])
+                        logging.info('[Weight] Deleted last tare weight')
 
                         read_tare_weights = []
                         last_read_time = time.time()
@@ -127,8 +135,8 @@ while True:
                 else:
                     if valid_weights(read_hamster_weights):
                         mean_value = statistics.mean(read_hamster_weights)
-                        logging.debug('[Weight] Writing hamster weight: {}'.format(mean_value))
                         write_weight(tag_hamster_weight, mean_value)
+                        logging.info('[Weight] Wrote hamster weight: {}'.format(mean_value))
 
                         read_hamster_weights = []
                         last_read_time = time.time()
