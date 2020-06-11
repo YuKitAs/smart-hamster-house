@@ -3,14 +3,13 @@
 * Remove all weights on the scale and run:
 
 ```console
-$ python3 weight-and-water.py &
+$ python3 main.py &
 ```
 
-* Check logs:
+* Check logs (DB operations are logged at INFO level):
 
 ```console
-$ tail -f logs/weight-and-water.log
-$ grep Weight logs/weight-and-water.log
+$ tail -f logs/arduino.log
 ```
 
 * Check database:
@@ -22,3 +21,5 @@ $ influx
 > USE weight
 > SELECT * FROM weight [WHERE type='hamster']
 ```
+
+* Log rotation config: `/etc/logrotate.d/arduino`
