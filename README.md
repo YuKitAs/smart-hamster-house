@@ -18,5 +18,6 @@
 
 ## Backlog
 - Activity monitoring (pressure sensor in every cave)
+- Hamster pedometer (count the revolutions of the hamster wheel)
 - Hamster wheel power generator
 - Manual upload hamster photos and retrieve a random one (like [@NotACatBot](https://t.me/NotACatBot?ref=producthunt))
