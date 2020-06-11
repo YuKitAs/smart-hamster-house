@@ -53,8 +53,6 @@ class WeighingScale:
             "DELETE FROM {} WHERE type = '{}' AND time < now() - 1h".format(MEASUREMENT_NAME, TAG_TARE))
 
     def __evaluate_weight(self, weight, read_weights, tare_weight=True, last_tare_weight_value=TARE_WEIGHT_DEFAULT):
-        log.debug('Read weights: {}'.format(read_weights))
-
         if len(read_weights) < NUM_READ_WEIGHTS:
             read_weights.append(weight if tare_weight else weight - last_tare_weight_value)
         else:
@@ -67,10 +65,10 @@ class WeighingScale:
                     log.info('Deleting last tare weight')
                     self.__delete_last_tare_weight()
 
-                read_weights = []
+                read_weights.clear()
                 self.last_read_time = time.time()
             else:
-                read_weights = read_weights[1:]
+                read_weights.pop(0)
 
     def process_weight(self, weight):
         current_time = time.time()
