@@ -13,7 +13,7 @@ DynamicJsonDocument doc(capacity);
 void setup() {
   LoadCell.begin();
   LoadCell.start(2000); // wait for stabilization
-  LoadCell.setCalFactor(376.0); // TODO: adjust the calibration factor with a known weight
+  LoadCell.setCalFactor(376.0);
 
   Serial.begin(9600);
 }
