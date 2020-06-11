@@ -6,10 +6,11 @@
 $ python3 main.py &
 ```
 
-* Check logs (DB operations are logged at INFO level):
+* Check logs:
 
 ```console
 $ tail -f logs/arduino.log
+$ grep INFO logs/arduino.log
 ```
 
 * Check database:
