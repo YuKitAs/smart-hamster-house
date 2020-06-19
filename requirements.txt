@@ -1,3 +1,4 @@
 configparser>=3.5.0
 python-telegram-bot>=12.2.0
 pySerial>=3.4
+influxdb>=5.3.0

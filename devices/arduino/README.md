@@ -1,10 +1,15 @@
 * Upload `*.ino` to Arduino
 
-* Remove all weights on the scale and run (with `python3.8+`):
+* Remove all weights on the scale, start Tmux session and run from the project root (with `python3.8+`):
 
 ```console
-$ python3 main.py &
+$ tmux
+$ python3 devices/arduino/main.py &
 ```
+
+Detach Tmux session with `Ctrl + b` and `d`.
+
+Re-attach with `tmux attach-session -t 0`.
 
 * Check logs:
 
@@ -26,7 +31,7 @@ $ influx
 * Log rotation config `/etc/logrotate.d/arduino`:
 
 ```
-/path/to/Projects/smart-hamster-house/devices/arduino/arduino.log {
+/path/to/Projects/smart-hamster-house/logs/arduino.log {
   daily 
   rotate 7
   missingok
