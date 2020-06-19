@@ -21,7 +21,7 @@ TARE_WEIGHT_OFFSET = 20  # max. offset of last tare weight
 
 
 # The basic idea is, due to the floating weight of the food bowl + food, the actual hamster weight should always be
-# compared to the actual tare weight (actual_hamster_weight =~ actual_total_weight - last tare weight).
+# compared to the actual tare weight (actual_hamster_weight =~ actual_total_weight - last_tare_weight).
 # The tare weight will be evaluated and updated every 1 hour, when the total weight is above WEIGHT_EVAL_THRESHOLD.
 # The hamster weight will be evaluated if
 # 1. the total weight is above HAMSTER_WEIGHT_EVAL_THRESHOLD
