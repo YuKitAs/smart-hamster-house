@@ -12,16 +12,18 @@ TAG_HAMSTER = "hamster"
 TAG_TARE = "tare"
 
 NUM_READ_WEIGHTS = 5  # number of consecutive weights to evaluate
-WEIGHT_THRESHOLD = 150  # evaluate weight only when it's above the threshold
-WRITE_INTERVAL = 86400  # write hamster weight at most once every 24h
+WEIGHT_EVAL_THRESHOLD = 150  # evaluate weight only when it's above this threshold
+HAMSTER_WEIGHT_EVAL_THRESHOLD = 180  # evaluate hamster weight once it's above this threshold
+WRITE_HAMSTER_INTERVAL = 86400  # write hamster weight at most once every 24h
 READ_INTERVAL = 3600  # evaluate weight every 1h
 TARE_WEIGHT_DEFAULT = 165  # an approximate value if no tare weight has been recorded before
+TARE_WEIGHT_OFFSET = 20  # max. offset of last tare weight
 
 
 class WeighingScale:
     read_hamster_weights = []
     read_tare_weights = []
-    last_read_time = 0
+    last_eval_time = 0
 
     def __init__(self, client):
         self.client = client
@@ -47,6 +49,10 @@ class WeighingScale:
         log.debug("Last weight query result for tag '{}': {}".format(tag, query_result))
         return next(query_result.get_points()) if len(query_result) > 0 else None
 
+    def __get_last_tare_weight_value(self):
+        last_tare_weight = self.__read_last_weight(TAG_TARE)
+        return last_tare_weight['last_value'] if last_tare_weight is not None else TARE_WEIGHT_DEFAULT
+
     def __delete_last_tare_weight(self):
         self.client.switch_database(DB_NAME)
         self.client.query(
@@ -66,29 +72,29 @@ class WeighingScale:
                     self.__delete_last_tare_weight()
 
                 read_weights.clear()
-                self.last_read_time = time.time()
+                self.last_eval_time = time.time()
             else:
                 read_weights.pop(0)
 
-    def process_weight(self, weight):
-        current_time = time.time()
+    def process_weight(self, weight, current_time):
+        if weight > HAMSTER_WEIGHT_EVAL_THRESHOLD:
+            last_tare_weight_value = self.__get_last_tare_weight_value()
 
-        if weight > WEIGHT_THRESHOLD and current_time - self.last_read_time >= READ_INTERVAL:
-            last_tare_weight = self.__read_last_weight(TAG_TARE)
-            last_tare_weight_value = last_tare_weight['last_value'] \
-                if last_tare_weight is not None else TARE_WEIGHT_DEFAULT
-
-            if 1 < abs(weight - last_tare_weight_value) <= 20:  # check tare weight
-                log.debug('Evaluating tare weight')
-                self.__evaluate_weight(weight, self.read_tare_weights)
-            elif abs(weight - last_tare_weight_value) > 20:  # check hamster weight
+            if abs(weight - last_tare_weight_value) > TARE_WEIGHT_OFFSET:  # check hamster weight
                 last_hamster_weight = self.__read_last_weight(TAG_HAMSTER)
                 last_hamster_weight_update_time = util.get_epoch_time_from_string(last_hamster_weight['time']) \
                     if last_hamster_weight is not None else 0
 
-                if current_time - last_hamster_weight_update_time > WRITE_INTERVAL:
+                if current_time - last_hamster_weight_update_time > WRITE_HAMSTER_INTERVAL:
                     log.debug('Evaluating hamster weight')
                     self.__evaluate_weight(weight, self.read_hamster_weights, False, last_tare_weight_value)
+
+        if weight > WEIGHT_EVAL_THRESHOLD and current_time - self.last_eval_time >= READ_INTERVAL:
+            last_tare_weight_value = self.__get_last_tare_weight_value()
+
+            if 1 < abs(weight - last_tare_weight_value) <= TARE_WEIGHT_OFFSET:  # check tare weight
+                log.debug('Evaluating tare weight')
+                self.__evaluate_weight(weight, self.read_tare_weights)
 
     @staticmethod
     def __valid_weights(values):

@@ -1,4 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import json
+import time
 
 import serial
 from influxdb import InfluxDBClient
@@ -25,6 +29,6 @@ while True:
         json_value = json.loads(raw_value)
 
         waterAlarm.process_water_alarm(json_value['liquid_alarm'])
-        weighingScale.process_weight(json_value['weight'])
+        weighingScale.process_weight(json_value['weight'], time.time())
     except Exception as ex:
         log.error(ex)
