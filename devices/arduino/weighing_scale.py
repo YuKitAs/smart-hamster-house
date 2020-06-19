@@ -87,25 +87,30 @@ class WeighingScale:
             else:
                 read_weights.pop(0)
 
+    def __check_hamster_weight(self, weight, current_time):
+        last_tare_weight_value = self.__get_last_tare_weight_value()
+
+        if weight - last_tare_weight_value > TARE_WEIGHT_OFFSET:
+            last_hamster_weight = self.__read_last_weight(TAG_HAMSTER)
+            last_hamster_weight_update_time = util.get_epoch_time_from_string(last_hamster_weight['time']) \
+                if last_hamster_weight is not None else 0
+
+            if current_time - last_hamster_weight_update_time > WRITE_HAMSTER_INTERVAL:
+                log.debug('Evaluating hamster weight')
+                self.__evaluate_weight(weight, self.read_hamster_weights, False, last_tare_weight_value)
+
+    def __check_tare_weight(self, weight):
+        last_tare_weight_value = self.__get_last_tare_weight_value()
+
+        if 1 < abs(weight - last_tare_weight_value) <= TARE_WEIGHT_OFFSET:
+            log.debug('Evaluating tare weight')
+            self.__evaluate_weight(weight, self.read_tare_weights)
+
     def process_weight(self, weight, current_time):
         if weight > HAMSTER_WEIGHT_EVAL_THRESHOLD:
-            last_tare_weight_value = self.__get_last_tare_weight_value()
-
-            if abs(weight - last_tare_weight_value) > TARE_WEIGHT_OFFSET:  # check hamster weight
-                last_hamster_weight = self.__read_last_weight(TAG_HAMSTER)
-                last_hamster_weight_update_time = util.get_epoch_time_from_string(last_hamster_weight['time']) \
-                    if last_hamster_weight is not None else 0
-
-                if current_time - last_hamster_weight_update_time > WRITE_HAMSTER_INTERVAL:
-                    log.debug('Evaluating hamster weight')
-                    self.__evaluate_weight(weight, self.read_hamster_weights, False, last_tare_weight_value)
-
-        if weight > WEIGHT_EVAL_THRESHOLD and current_time - self.last_eval_time >= READ_INTERVAL:
-            last_tare_weight_value = self.__get_last_tare_weight_value()
-
-            if 1 < abs(weight - last_tare_weight_value) <= TARE_WEIGHT_OFFSET:  # check tare weight
-                log.debug('Evaluating tare weight')
-                self.__evaluate_weight(weight, self.read_tare_weights)
+            self.__check_hamster_weight(weight, current_time)
+        elif current_time - self.last_eval_time >= READ_INTERVAL and weight > WEIGHT_EVAL_THRESHOLD:
+            self.__check_tare_weight(weight)
 
     @staticmethod
     def __valid_weights(values):
