@@ -2,7 +2,6 @@
 
 ## TODO
 - Automatic feeder v3
-- Camera stand
 
 ## In Progress
 
@@ -15,6 +14,7 @@
 - Automatic USB fan
 - Automatic weighing scale & monitoring (load sensor)
   - Grafana alert
+- Camera stand
 
 ## Backlog
 - Activity monitoring (pressure sensor in every cave)
