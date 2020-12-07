@@ -101,7 +101,7 @@ def handle_take_photo(update, context):
     logging.getLogger(handle_take_photo.__name__).info("Taking photo")
 
     photo_path = os.path.join(OUTPUT_PATH, "jun-{}.png".format(time.strftime("%Y%m%d%H%M%S", time.localtime())))
-    cmd = "raspistill -vf -n -o {}".format(photo_path)
+    cmd = "raspistill -n -o {}".format(photo_path)
     subprocess.call(cmd, shell=True)
 
     # TODO send error message when failed
