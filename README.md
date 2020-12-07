@@ -7,14 +7,13 @@
 
 ## Done
 - Telegram Bot
-- Webcam (RPi camera module)
+- Webcam (RPi camera module) & Camera stand
 - Water alarm (non-contact liquid level sensor)
   - Grafana alert
 - Automatic night light
 - Automatic USB fan
 - Automatic weighing scale & monitoring (load sensor)
   - Grafana alert
-- Camera stand
 
 ## Backlog
 - Activity monitoring (pressure sensor in every cave)
