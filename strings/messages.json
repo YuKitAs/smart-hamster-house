@@ -10,7 +10,9 @@
   },
   "error": {
     "general": "An unexpected error has occurred:\n{}",
-    "not_found": "Command not found.",
-    "permission_denied": "Permission denied."
+    "not_found": "Command not found",
+    "permission_denied": "Permission denied",
+    "take_photo_failed": "Taking photo failed",
+    "send_photo_failed": "Sending photo failed"
   }
 }

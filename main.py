@@ -8,10 +8,12 @@ import os
 import subprocess
 import time
 from configparser import ConfigParser
+from subprocess import CalledProcessError
 
 import pytz
 from influxdb import InfluxDBClient
 from telegram import ReplyKeyboardRemove
+from telegram.error import NetworkError
 from telegram.ext import run_async
 
 from strings import Strings
@@ -49,6 +51,7 @@ BOT_TOKEN = config["telegram.bot"]["TOKEN"]
 ADMIN_CHAT_ID = json.loads(config.get("telegram.bot", "ADMIN_CHAT_ID"))
 READ_ONLY_CHAT_ID = json.loads(config.get("telegram.bot", "READ_ONLY_CHAT_ID"))
 SEND_TIMEOUT = int(config["telegram.bot"]["SEND_TIMEOUT"])
+MAX_RETRY = 3
 
 
 def _valid_user(chat_id):
@@ -98,17 +101,42 @@ def handle_take_photo(update, context):
 
     update.message.reply_text(strings.get("text", "take_photo"))
 
-    logging.getLogger(handle_take_photo.__name__).info("Taking photo")
+    logging.getLogger(handle_take_photo.__name__).debug("Taking photo")
 
     photo_path = os.path.join(OUTPUT_PATH, "jun-{}.png".format(time.strftime("%Y%m%d%H%M%S", time.localtime())))
     cmd = "raspistill -n -o {}".format(photo_path)
-    subprocess.call(cmd, shell=True)
 
-    # TODO send error message when failed
+    error_message = None
+    try:
+        subprocess.call(cmd, shell=True)
+    except CalledProcessError as e:
+        logging.getLogger(handle_take_photo.__name__).error("Taking photo failed due to: {}".format(e))
+        error_message = strings.get("error", "take_photo_failed")
 
-    logging.getLogger(handle_take_photo.__name__).info("Sending photo stored at '{}'".format(photo_path))
+    if not os.path.exists(photo_path):
+        logging.getLogger(handle_take_photo.__name__).error("Saving photo failed")
+        error_message = strings.get("error", "take_photo_failed")
+    else:
+        logging.getLogger(handle_take_photo.__name__).info("Sending photo stored at '{}'".format(photo_path))
 
-    context.bot.send_photo(chat_id=update.message.chat_id, photo=open(photo_path, "rb"), timeout=SEND_TIMEOUT)
+        retry = 0
+        while retry < MAX_RETRY:
+            try:
+                context.bot.send_photo(chat_id=update.message.chat_id, photo=open(photo_path, "rb"),
+                                       timeout=SEND_TIMEOUT)
+                break
+            except NetworkError as e:
+                logging.getLogger(handle_take_photo.__name__).warning(
+                    "Sending photo '{}' timed out: {}. Retrying...".format(photo_path, e))
+                retry += 1
+
+        if retry >= MAX_RETRY:
+            logging.getLogger(handle_take_photo.__name__).error(
+                "Sending photo '{}' failed after {} retries.".format(photo_path, retry))
+            error_message = strings.get("error", "send_photo_failed")
+
+    if error_message is not None:
+        update.message.reply_text("Something went wrong: {}\nPlease check logs for more info.".format(error_message))
 
 
 @run_async
