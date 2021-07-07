@@ -151,7 +151,7 @@ def handle_get_weight(update, context):
         record_num = context.args[0]
     query_result = client.query("SELECT * FROM weight WHERE time > now() - {}d".format(record_num))
 
-    logging.info("Retrieved weight record(s) in the last {} day(s): {}".format(record_num, query_result))
+    logging.getLogger(handle_get_weight.__name__).info("Retrieved weight record(s) in the last {} day(s): {}".format(record_num, query_result))
 
     points = query_result.get_points(tags={'type': 'hamster'})
     records = ""
@@ -167,6 +167,23 @@ def handle_get_weight(update, context):
         update.message.reply_text(records, parse_mode='Markdown')
     else:
         update.message.reply_text("No weight recorded in the last day")
+
+
+def handle_calc_age(update, context):
+    if not check_permission(update, context, _valid_user):
+        return
+
+    num_days = (datetime.date.today() - datetime.date(2019, 12, 27)).days
+    logging.getLogger(handle_calc_age.__name__).debug("Ages in days: {}".format(num_days))
+
+    years = num_days // 365
+    months = (num_days % 365) // 30
+    days = (num_days % 365) % 30
+    years_result = str(years) + "Y " if years != 0 else ""
+    months_result = str(months) + "M " if months != 0 else ""
+    days_result = str(days) + "D"
+
+    update.message.reply_text("Your hamster is {} old.".format(years_result + months_result + days_result))
 
 
 # handle unknown errors
@@ -197,6 +214,7 @@ def main():
         .add_command_handler("start", handle_start) \
         .add_command_handler("photo", handle_take_photo) \
         .add_command_handler("weight", handle_get_weight, pass_args=True) \
+        .add_command_handler("age", handle_calc_age) \
         .add_command_handler("viewlog", handle_view_log) \
         .add_default_message_handler(handle_default_message) \
         .add_error_handler(handle_error) \
