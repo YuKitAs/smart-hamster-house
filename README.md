@@ -1,22 +1,16 @@
 # smart-hamster-house
 
-## TODO
-- Automatic feeder v3
+- [x] Telegram Bot (photo, weight, age, alerts)
+- [x] Webcam (RPi camera module) & Camera stand
+- [x] Water alarm (non-contact liquid level sensor)
+- [x] Automatic night light
+- [x] Automatic USB fan
+- [x] Automatic weighing scale & monitoring (load sensor)
+- [x] Humidity & Temperature sensor with LCD
 
-## In Progress
-
-## Done
-- Telegram Bot
-- Webcam (RPi camera module) & Camera stand
-- Water alarm (non-contact liquid level sensor)
-  - Grafana alert
-- Automatic night light
-- Automatic USB fan
-- Automatic weighing scale & monitoring (load sensor)
-  - Grafana alert
 
 ## Backlog
-- Activity monitoring (pressure sensor in every cave)
+- Automatic feeder v3
 - Hamster pedometer (count the revolutions of the hamster wheel)
 - Hamster wheel power generator
-- Manual upload hamster photos and retrieve a random one (like [@NotACatBot](https://t.me/NotACatBot?ref=producthunt))
+- Retrieve a random photo (like [@NotACatBot](https://t.me/NotACatBot?ref=producthunt))
